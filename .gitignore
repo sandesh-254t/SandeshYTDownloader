@@ -1,0 +1,24 @@
+# Videos (very important!)
+*.mp4
+*.MP4
+*.webm
+*.mkv
+*.avi
+downloads/
+temp/
+videos/
+
+# ffmpeg
+ffmpeg.exe
+ffmpeg-*
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
