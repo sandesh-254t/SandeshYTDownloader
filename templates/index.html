@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SandeshYTDownloader | Multi-Quality YouTube Downloader</title>
+    <title>SandeshYTDownloader | Nature Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -82,8 +82,8 @@
             backdrop-filter: blur(20px);
             border-radius: 48px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 40px;
-            max-width: 900px;
+            padding: 48px 40px;
+            max-width: 700px;
             width: 100%;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
             transition: all 0.4s ease;
@@ -99,6 +99,12 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(46, 204, 113, 0.4);
         }
 
         .developer-section {
@@ -161,6 +167,15 @@
             flex-wrap: wrap;
         }
 
+        .developer-info p i {
+            transition: all 0.2s;
+        }
+
+        .developer-info p i:hover {
+            color: #2ecc71;
+            transform: translateY(-2px);
+        }
+
         .logo-section {
             text-align: center;
             margin-bottom: 32px;
@@ -189,6 +204,14 @@
             justify-content: center;
             gap: 8px;
             flex-wrap: wrap;
+        }
+
+        .brand-badge {
+            background: rgba(46, 204, 113, 0.3);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #2ecc71;
         }
 
         .input-wrapper {
@@ -226,95 +249,6 @@
             border-color: #2ecc71;
             background: rgba(255, 255, 255, 0.12);
             box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
-        }
-
-        /* Quality Section Styles */
-        .quality-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 28px;
-            padding: 18px;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .radio-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .radio-label:hover {
-            background: rgba(46, 204, 113, 0.2);
-            border-color: #2ecc71;
-        }
-
-        .radio-label input {
-            display: none;
-        }
-
-        .radio-label span {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .radio-label.active {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            border-color: #2ecc71;
-        }
-
-        .radio-label.active span {
-            color: white;
-        }
-
-        .format-toggle {
-            display: flex;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 40px;
-            padding: 4px;
-        }
-
-        .format-btn {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            border-radius: 36px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .format-btn.active {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            color: white;
         }
 
         .fetch-btn {
@@ -371,9 +305,9 @@
 
         .video-title {
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
@@ -398,7 +332,7 @@
 
         .download-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             font-size: 16px;
             font-weight: 600;
             background: linear-gradient(135deg, #e67e22, #d35400);
@@ -473,6 +407,11 @@
             transition: all 0.3s ease;
         }
 
+        .feature:hover {
+            background: rgba(46, 204, 113, 0.15);
+            transform: translateY(-3px);
+        }
+
         .feature i {
             font-size: 28px;
             margin-bottom: 8px;
@@ -493,6 +432,10 @@
             color: rgba(255, 255, 255, 0.35);
         }
 
+        .footer i {
+            color: #e74c3c;
+        }
+
         .spinner {
             width: 18px;
             height: 18px;
@@ -504,16 +447,6 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        .quality-badge {
-            display: inline-block;
-            background: rgba(46, 204, 113, 0.3);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-left: 10px;
-            color: #2ecc71;
         }
 
         @media (max-width: 600px) {
@@ -530,11 +463,8 @@
                 flex-direction: column;
                 text-align: center;
             }
-            .radio-group {
-                gap: 8px;
-            }
-            .radio-label span {
-                font-size: 12px;
+            .developer-info p {
+                justify-content: center;
             }
         }
     </style>
@@ -544,6 +474,7 @@
     <div class="leaf" style="top: 70%; left: 85%;">🌿</div>
     <div class="leaf" style="top: 40%; left: 15%;">🍂</div>
     <div class="leaf" style="top: 80%; left: 20%;">🌱</div>
+    <div class="leaf" style="top: 20%; left: 90%;">🍃</div>
 
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -575,80 +506,14 @@
                 <h1>SandeshYTDownloader</h1>
                 <div class="tagline">
                     <i class="fab fa-youtube"></i>
-                    Choose Quality | Download Video or MP3
-                    <span class="quality-badge">Up to 4K + MP3</span>
+                    Download any video in seconds
+                    <span class="brand-badge">Branded Downloads</span>
                 </div>
             </div>
 
             <div class="input-wrapper">
                 <i class="fas fa-link input-icon"></i>
                 <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
-            </div>
-
-            <!-- Format Toggle -->
-            <div class="quality-section">
-                <div class="format-toggle">
-                    <div class="format-btn active" data-format="video">
-                        <i class="fas fa-video"></i> Video
-                    </div>
-                    <div class="format-btn" data-format="audio">
-                        <i class="fas fa-music"></i> Audio (MP3)
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video Quality Options -->
-            <div class="quality-section" id="videoQualitySection">
-                <div class="section-title">
-                    <i class="fas fa-tachometer-alt"></i> Select Video Quality
-                </div>
-                <div class="radio-group" id="qualityGroup">
-                    <label class="radio-label" data-quality="144">
-                        <input type="radio" name="quality" value="144">
-                        <span>144p</span>
-                    </label>
-                    <label class="radio-label" data-quality="240">
-                        <input type="radio" name="quality" value="240">
-                        <span>240p</span>
-                    </label>
-                    <label class="radio-label" data-quality="360">
-                        <input type="radio" name="quality" value="360">
-                        <span>360p</span>
-                    </label>
-                    <label class="radio-label" data-quality="480">
-                        <input type="radio" name="quality" value="480">
-                        <span>480p</span>
-                    </label>
-                    <label class="radio-label active" data-quality="720">
-                        <input type="radio" name="quality" value="720" checked>
-                        <span>720p (HD)</span>
-                    </label>
-                    <label class="radio-label" data-quality="1080">
-                        <input type="radio" name="quality" value="1080">
-                        <span>1080p (Full HD)</span>
-                    </label>
-                    <label class="radio-label" data-quality="1440">
-                        <input type="radio" name="quality" value="1440">
-                        <span>1440p (2K)</span>
-                    </label>
-                    <label class="radio-label" data-quality="2160">
-                        <input type="radio" name="quality" value="2160">
-                        <span>2160p (4K)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Audio Quality Section (hidden by default) -->
-            <div class="quality-section" id="audioQualitySection" style="display: none;">
-                <div class="section-title">
-                    <i class="fas fa-music"></i> Audio Settings
-                </div>
-                <div class="radio-group">
-                    <label class="radio-label active" data-quality="mp3">
-                        <input type="radio" name="audio-quality" value="mp3" checked>
-                        <span>MP3 - High Quality (192kbps)</span>
-                    </label>
-                </div>
             </div>
 
             <button class="fetch-btn" id="fetchBtn">
@@ -663,7 +528,7 @@
                 <div id="videoContainer" class="video-container"></div>
                 <button id="downloadBtn" class="download-btn">
                     <i class="fas fa-download"></i>
-                    <span>Download</span>
+                    <span>Download Video</span>
                 </button>
             </div>
 
@@ -674,11 +539,11 @@
                 </div>
                 <div class="feature">
                     <i class="fas fa-file-video"></i>
-                    <span>MP4 / MP3</span>
+                    <span>MP4 Format</span>
                 </div>
                 <div class="feature">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>100% Safe</span>
+                    <i class="fas fa-tag"></i>
+                    <span>Sandesh Branded</span>
                 </div>
             </div>
 
@@ -689,11 +554,9 @@
     </div>
 
     <script>
-        let currentVideoId = '';
-        let currentTitle = '';
         let currentUrl = '';
-        let currentFormatType = 'video';
-        let selectedQuality = '720';
+        let currentTitle = '';
+        let currentVideoId = '';
 
         const urlInput = document.getElementById('urlInput');
         const fetchBtn = document.getElementById('fetchBtn');
@@ -702,36 +565,6 @@
         const videoTitle = document.getElementById('videoTitle');
         const videoContainer = document.getElementById('videoContainer');
         const downloadBtn = document.getElementById('downloadBtn');
-        const videoQualitySection = document.getElementById('videoQualitySection');
-        const audioQualitySection = document.getElementById('audioQualitySection');
-
-        // Format toggle logic
-        document.querySelectorAll('.format-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFormatType = btn.dataset.format;
-                
-                if (currentFormatType === 'video') {
-                    videoQualitySection.style.display = 'block';
-                    audioQualitySection.style.display = 'none';
-                } else {
-                    videoQualitySection.style.display = 'none';
-                    audioQualitySection.style.display = 'block';
-                }
-            });
-        });
-
-        // Quality selection logic
-        document.querySelectorAll('.radio-label').forEach(label => {
-            label.addEventListener('click', () => {
-                if (label.parentElement.id === 'qualityGroup') {
-                    document.querySelectorAll('#qualityGroup .radio-label').forEach(l => l.classList.remove('active'));
-                    label.classList.add('active');
-                    selectedQuality = label.dataset.quality;
-                }
-            });
-        });
 
         async function fetchVideo() {
             const url = urlInput.value.trim();
@@ -748,7 +581,7 @@
             }
             
             fetchBtn.disabled = true;
-            fetchBtn.innerHTML = '<div class="spinner"></div><span>Fetching Video...</span>';
+            fetchBtn.innerHTML = '<div class="spinner"></div><span>Loading...</span>';
             showStatus('Getting video info... 🌱', 'loading');
             videoPreview.classList.remove('show');
             
@@ -761,25 +594,20 @@
                     body: JSON.stringify({ url: url })
                 });
                 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to fetch video');
-                }
-                
                 const data = await response.json();
                 
                 if (!data.success) {
-                    throw new Error(data.error || 'Failed to get video');
+                    throw new Error(data.error);
                 }
                 
-                currentVideoId = data.video_id;
                 currentTitle = data.title;
+                currentVideoId = data.video_id;
                 
-                videoTitle.innerHTML = currentTitle;
+                videoTitle.textContent = currentTitle;
                 videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${currentVideoId}" frameborder="0" allowfullscreen></iframe>`;
                 videoPreview.classList.add('show');
                 
-                showStatus('✅ Video loaded! Select quality and download.', 'success');
+                showStatus('✅ Video ready! Your download will be branded with SandeshYTDownloader', 'success');
                 
             } catch (error) {
                 showStatus('❌ ' + error.message, 'error');
@@ -796,9 +624,8 @@
             }
             
             downloadBtn.disabled = true;
-            const qualityText = currentFormatType === 'video' ? selectedQuality : 'MP3';
-            downloadBtn.innerHTML = `<div class="spinner"></div><span>Downloading ${qualityText}...</span>`;
-            showStatus(`📥 Downloading ${qualityText} quality... This may take a moment.`, 'loading');
+            downloadBtn.innerHTML = '<div class="spinner"></div><span>Preparing Download...</span>';
+            showStatus('📥 Downloading and adding brand mark...', 'loading');
             
             try {
                 const response = await fetch('/api/download-video', {
@@ -808,9 +635,7 @@
                     },
                     body: JSON.stringify({ 
                         url: currentUrl,
-                        title: currentTitle,
-                        quality: selectedQuality,
-                        format_type: currentFormatType
+                        title: currentTitle 
                     })
                 });
                 
@@ -823,19 +648,19 @@
                 const downloadUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = downloadUrl;
-                a.download = `${currentTitle}.${currentFormatType === 'video' ? 'mp4' : 'mp3'}`;
+                a.download = `${currentTitle}.mp4`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(downloadUrl);
                 
-                showStatus(`✅ Download started! ${qualityText} quality ${currentFormatType === 'video' ? 'video' : 'MP3'} saved.`, 'success');
+                showStatus('✅ Download started! File is branded with SandeshYTDownloader', 'success');
                 
             } catch (error) {
                 showStatus('❌ ' + error.message, 'error');
             } finally {
                 downloadBtn.disabled = false;
-                downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download</span>';
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download Video</span>';
             }
         }
 
