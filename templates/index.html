@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SandeshYTDownloader | YouTube Downloader</title>
+    <title>SandeshYTDownloader | Nature Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -83,7 +83,7 @@
             border-radius: 48px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 48px 40px;
-            max-width: 800px;
+            max-width: 700px;
             width: 100%;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
             transition: all 0.4s ease;
@@ -99,6 +99,12 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(46, 204, 113, 0.4);
         }
 
         .developer-section {
@@ -161,6 +167,15 @@
             flex-wrap: wrap;
         }
 
+        .developer-info p i {
+            transition: all 0.2s;
+        }
+
+        .developer-info p i:hover {
+            color: #2ecc71;
+            transform: translateY(-2px);
+        }
+
         .logo-section {
             text-align: center;
             margin-bottom: 32px;
@@ -188,6 +203,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .input-wrapper {
@@ -281,9 +297,9 @@
 
         .video-title {
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
@@ -308,10 +324,10 @@
 
         .download-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             font-size: 16px;
             font-weight: 600;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, #e67e22, #d35400);
             color: white;
             border: none;
             border-radius: 28px;
@@ -325,7 +341,12 @@
 
         .download-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 15px 35px rgba(230, 126, 34, 0.4);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .status {
@@ -378,6 +399,11 @@
             transition: all 0.3s ease;
         }
 
+        .feature:hover {
+            background: rgba(46, 204, 113, 0.15);
+            transform: translateY(-3px);
+        }
+
         .feature i {
             font-size: 28px;
             margin-bottom: 8px;
@@ -396,6 +422,10 @@
             text-align: center;
             font-size: 12px;
             color: rgba(255, 255, 255, 0.35);
+        }
+
+        .footer i {
+            color: #e74c3c;
         }
 
         .spinner {
@@ -425,6 +455,9 @@
                 flex-direction: column;
                 text-align: center;
             }
+            .developer-info p {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -433,6 +466,7 @@
     <div class="leaf" style="top: 70%; left: 85%;">🌿</div>
     <div class="leaf" style="top: 40%; left: 15%;">🍂</div>
     <div class="leaf" style="top: 80%; left: 20%;">🌱</div>
+    <div class="leaf" style="top: 20%; left: 90%;">🍃</div>
 
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -441,7 +475,7 @@
         <div class="glass-card">
             <div class="developer-section">
                 <div class="avatar">
-                    <img src="/static/san.jpg" class="avatar-img" onerror="this.src='https://via.placeholder.com/80'">
+                    <img src="{{ url_for('static', filename='san.jpg') }}" class="avatar-img">
                     <div class="avatar-badge">
                         <i class="fas fa-check"></i>
                     </div>
@@ -464,8 +498,7 @@
                 <h1>SandeshYTDownloader</h1>
                 <div class="tagline">
                     <i class="fab fa-youtube"></i>
-                    Paste link, preview, then download
-                    <i class="fas fa-leaf"></i>
+                    Download any video in seconds
                 </div>
             </div>
 
@@ -500,8 +533,8 @@
                     <span>MP4 Format</span>
                 </div>
                 <div class="feature">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>100% Safe</span>
+                    <i class="fas fa-download"></i>
+                    <span>Easy Download</span>
                 </div>
             </div>
 
@@ -512,8 +545,9 @@
     </div>
 
     <script>
-        let currentVideoUrl = '';
+        let currentUrl = '';
         let currentTitle = '';
+        let currentVideoId = '';
 
         const urlInput = document.getElementById('urlInput');
         const fetchBtn = document.getElementById('fetchBtn');
@@ -537,7 +571,7 @@
             }
             
             fetchBtn.disabled = true;
-            fetchBtn.innerHTML = '<div class="spinner"></div><span>Fetching Video...</span>';
+            fetchBtn.innerHTML = '<div class="spinner"></div><span>Loading...</span>';
             showStatus('Getting video info... 🌱', 'loading');
             videoPreview.classList.remove('show');
             
@@ -550,59 +584,78 @@
                     body: JSON.stringify({ url: url })
                 });
                 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to fetch video');
-                }
-                
                 const data = await response.json();
                 
                 if (!data.success) {
-                    throw new Error(data.error || 'Failed to get video');
+                    throw new Error(data.error);
                 }
                 
-                currentVideoUrl = data.video_url;
+                // STORE the URL for download
+                currentUrl = url;
                 currentTitle = data.title;
+                currentVideoId = data.video_id;
                 
-                // Show video preview
                 videoTitle.textContent = currentTitle;
-                
-                // Create embed player
-                let videoId = '';
-                if (url.includes('youtu.be/')) {
-                    videoId = url.split('youtu.be/')[1].split('?')[0];
-                } else if (url.includes('watch?v=')) {
-                    videoId = url.split('watch?v=')[1].split('&')[0];
-                }
-                
-                videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${currentVideoId}" frameborder="0" allowfullscreen></iframe>`;
                 videoPreview.classList.add('show');
                 
-                showStatus('✅ Video loaded! Click download to save.', 'success');
+                showStatus('✅ Video ready! Click download to save.', 'success');
                 
             } catch (error) {
                 showStatus('❌ ' + error.message, 'error');
+                currentUrl = ''; // Clear on error
             } finally {
                 fetchBtn.disabled = false;
                 fetchBtn.innerHTML = '<i class="fas fa-search"></i><span>Get Video Preview</span>';
             }
         }
 
-        function downloadVideo() {
-            if (!currentVideoUrl) {
-                showStatus('No video loaded. Please fetch a video first.', 'error');
+        async function downloadVideo() {
+            // Check if we have a valid URL
+            if (!currentUrl) {
+                showStatus('Please fetch a video first! Click "Get Video Preview" button.', 'error');
                 return;
             }
             
-            // Create a temporary link to download the video directly from YouTube
-            const a = document.createElement('a');
-            a.href = currentVideoUrl;
-            a.download = `${currentTitle}.mp4`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<div class="spinner"></div><span>Preparing Download...</span>';
+            showStatus('📥 Downloading video...', 'loading');
             
-            showStatus('📥 Download started! Video is downloading from YouTube directly.', 'success');
+            try {
+                const response = await fetch('/api/download-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        url: currentUrl,
+                        title: currentTitle 
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Download failed');
+                }
+                
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `${currentTitle}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+                
+                showStatus('✅ Download started!', 'success');
+                
+            } catch (error) {
+                showStatus('❌ ' + error.message, 'error');
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download Video</span>';
+            }
         }
 
         function showStatus(message, type) {
