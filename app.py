@@ -1,121 +1,122 @@
-from flask import Flask, request, jsonify, render_template, Response
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import yt_dlp
 import re
 import os
-import requests
+import uuid
+import base64
+import tempfile
 
 app = Flask(__name__)
 CORS(app)
 
 BRAND_NAME = "SandeshYTDownloader"
 
-# Path to cookies file
-COOKIES_FILE = "data/cookies.txt"
 
-@app.route('/')
+# ✅ Cookie loader (secure)
+def get_cookie_file():
+    cookies_b64 = os.environ.get("YOUTUBE_COOKIES")
+    if cookies_b64:
+        cookies_content = base64.b64decode(cookies_b64).decode("utf-8")
+
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".txt")
+        temp.write(cookies_content.encode())
+        temp.close()
+
+        return temp.name
+    return None
+
+
+@app.route("/")
 def home():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/api/get-video', methods=['POST'])
+
+@app.route("/api/get-video", methods=["POST"])
 def get_video():
+    cookie_file = None
     try:
         data = request.get_json()
-        url = data.get('url')
-        
+        url = data.get("url")
+
         if not url:
-            return jsonify({'error': 'No URL provided'}), 400
-        
-        if not re.search(r'(youtube\.com|youtu\.be)', url):
-            return jsonify({'error': 'Please enter a valid YouTube URL'}), 400
-        
-        ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
-            'extract_flat': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        }
-        
-        # Add cookies if file exists
-        if os.path.exists(COOKIES_FILE):
-            ydl_opts['cookiefile'] = COOKIES_FILE
-        
+            return jsonify({"error": "No URL provided"}), 400
+
+        ydl_opts = {"quiet": True, "no_warnings": True}
+
+        cookie_file = get_cookie_file()
+        if cookie_file:
+            ydl_opts["cookiefile"] = cookie_file
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            title = info.get('title', 'Video')
-            
-            video_id = None
-            if 'youtu.be' in url:
-                video_id = url.split('youtu.be/')[1].split('?')[0]
-            elif 'watch?v=' in url:
-                video_id = url.split('watch?v=')[1].split('&')[0]
-            elif 'shorts/' in url:
-                video_id = url.split('shorts/')[1].split('?')[0]
-            
-            return jsonify({
-                'success': True,
-                'title': title,
-                'video_id': video_id
-            })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+            title = info.get("title", "Video")
 
-@app.route('/api/download-video', methods=['POST'])
+        video_id = None
+        if "youtu.be" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+        elif "watch?v=" in url:
+            video_id = url.split("watch?v=")[1].split("&")[0]
+
+        return jsonify({
+            "success": True,
+            "title": title,
+            "video_id": video_id
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cookie_file and os.path.exists(cookie_file):
+            os.unlink(cookie_file)
+
+
+@app.route("/api/download-video", methods=["POST"])
 def download_video():
+    cookie_file = None
+    output_path = None
+
     try:
         data = request.get_json()
-        url = data.get('url')
-        title = data.get('title', 'video')
-        
-        if not url:
-            return jsonify({'error': 'No URL provided'}), 400
-        
-        # Clean title - remove special characters
-        clean_title = re.sub(r'[\\/*?:"<>|]', "", title)
-        clean_title = clean_title.encode('ascii', 'ignore').decode('ascii')
-        clean_title = clean_title.strip()[:50]
-        
-        if not clean_title:
-            clean_title = "video"
-        
-        branded_filename = f"{BRAND_NAME} - {clean_title}.mp4"
-        branded_filename = re.sub(r'[^\x00-\x7F]+', '', branded_filename)
-        
-        def stream_video():
-            """Stream video directly from YouTube"""
-            ydl_opts = {
-                'quiet': True,
-                'no_warnings': True,
-                'format': 'best[ext=mp4]',
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            }
-            
-            # Add cookies if file exists
-            if os.path.exists(COOKIES_FILE):
-                ydl_opts['cookiefile'] = COOKIES_FILE
-            
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                video_url = info['url']
-                
-                response = requests.get(video_url, stream=True)
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        yield chunk
-        
-        return Response(
-            stream_video(),
-            mimetype='video/mp4',
-            headers={
-                'Content-Disposition': f'attachment; filename="{branded_filename}"'
-            }
-        )
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        url = data.get("url")
+        title = data.get("title", "video")
 
-if __name__ == '__main__':
-    # Create data directory if it doesn't exist
-    os.makedirs("data", exist_ok=True)
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+        filename = f"{uuid.uuid4()}.mp4"
+        os.makedirs("downloads", exist_ok=True)
+        output_path = os.path.join("downloads", filename)
+
+        clean_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
+        branded_filename = f"{BRAND_NAME} - {clean_title}.mp4"
+
+        ydl_opts = {
+            "outtmpl": output_path,
+            "format": "best[ext=mp4]",
+            "quiet": True,
+        }
+
+        cookie_file = get_cookie_file()
+        if cookie_file:
+            ydl_opts["cookiefile"] = cookie_file
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        return send_file(
+            output_path,
+            as_attachment=True,
+            download_name=branded_filename
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cookie_file and os.path.exists(cookie_file):
+            os.unlink(cookie_file)
+        if output_path and os.path.exists(output_path):
+            os.remove(output_path)
+
+
+if __name__ == "__main__":
+    app.run()
