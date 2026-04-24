@@ -1,1 +1,4 @@
-python-3.11.8
+python-3.11.8flask
+flask-cors
+yt-dlp
+gunicorn
