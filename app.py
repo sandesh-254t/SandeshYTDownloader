@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import yt_dlp
-import re
-import uuid
 import os
+import re
+import requests
+from urllib.parse import quote
 
 app = Flask(__name__)
 CORS(app)
@@ -26,17 +27,44 @@ def get_video():
         if not re.search(r'(youtube\.com|youtu\.be)', url):
             return jsonify({'error': 'Please enter a valid YouTube URL'}), 400
         
+        # Updated yt-dlp options to bypass YouTube blocking
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
             'format': 'best[ext=mp4]',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'player_skip': ['webpage', 'configs'],
+                    'skip': ['hls', 'dash']
+                }
+            },
+            'http_headers': {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            }
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            title = info.get('title', 'Video')
             
-            # Get video ID for embed
+            # Get the best video URL
+            video_url = None
+            formats = info.get('formats', [])
+            
+            # Find the best MP4 format
+            for f in formats:
+                if f.get('ext') == 'mp4' and f.get('vcodec') != 'none':
+                    if video_url is None or f.get('height', 0) > 720:
+                        video_url = f.get('url')
+            
+            # Fallback to any URL
+            if not video_url:
+                video_url = info.get('url')
+            
+            # Extract video ID for embed
             video_id = None
             if 'youtu.be' in url:
                 video_id = url.split('youtu.be/')[1].split('?')[0]
@@ -45,62 +73,49 @@ def get_video():
             
             return jsonify({
                 'success': True,
-                'title': title,
+                'title': info.get('title', 'Video'),
+                'video_url': video_url,
+                'thumbnail': info.get('thumbnail', ''),
                 'video_id': video_id
             })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error: {str(e)}'}), 500
 
 @app.route('/api/download-video', methods=['POST'])
 def download_video():
-    output_path = None
     try:
         data = request.get_json()
-        url = data.get('url')
+        video_url = data.get('video_url')
         title = data.get('title', 'video')
         
-        if not url:
-            return jsonify({'error': 'No URL provided'}), 400
+        if not video_url:
+            return jsonify({'error': 'No video URL provided'}), 400
         
-        # Create unique filename
-        filename = f"{uuid.uuid4()}.mp4"
-        output_path = os.path.join("downloads", filename)
-        os.makedirs("downloads", exist_ok=True)
+        # Clean filename
+        title = re.sub(r'[\\/*?:"<>|]', "", title)
+        title = title[:50]
+        filename = f"{BRAND_NAME} - {title}.mp4"
         
-        ydl_opts = {
-            'outtmpl': output_path,
-            'quiet': True,
-            'no_warnings': True,
-            'format': 'best[ext=mp4]',
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        # Stream the video from YouTube and force download
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Referer': 'https://www.youtube.com/'
         }
         
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+        response = requests.get(video_url, headers=headers, stream=True)
         
-        # Clean title for filename
-        clean_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
-        
-        # Add your BRAND NAME to the filename
-        branded_filename = f"{BRAND_NAME} - {clean_title}.mp4"
-        
+        # Force download by setting content-disposition header
         return send_file(
-            output_path,
+            response.raw,
             as_attachment=True,
-            download_name=branded_filename,
+            download_name=filename,
             mimetype='video/mp4'
         )
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    finally:
-        if output_path and os.path.exists(output_path):
-            try:
-                os.remove(output_path)
-            except:
-                pass
 
 if __name__ == '__main__':
-    os.makedirs("downloads", exist_ok=True)
+    os.makedirs("templates", exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
