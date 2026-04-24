@@ -618,52 +618,51 @@
         }
 
         async function downloadVideo() {
-            if (!currentUrl) {
-                showStatus('No video loaded. Please fetch a video first.', 'error');
-                return;
-            }
-            
-            downloadBtn.disabled = true;
-            downloadBtn.innerHTML = '<div class="spinner"></div><span>Preparing Download...</span>';
-            showStatus('📥 Downloading and adding brand mark...', 'loading');
-            
-            try {
-                const response = await fetch('/api/download-video', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        url: currentUrl,
-                        title: currentTitle 
-                    })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Download failed');
-                }
-                
-                const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                a.download = `${currentTitle}.mp4`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(downloadUrl);
-                
-                showStatus('✅ Download started! File is branded with SandeshYTDownloader', 'success');
-                
-            } catch (error) {
-                showStatus('❌ ' + error.message, 'error');
-            } finally {
-                downloadBtn.disabled = false;
-                downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download Video</span>';
-            }
+    if (!currentVideoUrl) {
+        showStatus('No video loaded. Please fetch a video first.', 'error');
+        return;
+    }
+    
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = '<div class="spinner"></div><span>Starting Download...</span>';
+    showStatus('📥 Preparing download...', 'loading');
+    
+    try {
+        const response = await fetch('/api/download-video', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                video_url: currentVideoUrl,
+                title: currentTitle 
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Download failed');
         }
-
+        
+        // Get the file as blob and trigger download
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `${currentTitle}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        showStatus('✅ Download started! Check your downloads folder.', 'success');
+        
+    } catch (error) {
+        showStatus('❌ ' + error.message, 'error');
+    } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download Video</span>';
+    }
+}
         function showStatus(message, type) {
             statusDiv.innerHTML = `<i class="fas ${type === 'loading' ? 'fa-spinner fa-pulse' : (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle')}"></i> ${message}`;
             statusDiv.className = `status ${type}`;
