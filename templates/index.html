@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sandesh YouTube Downloader | Nature Edition</title>
+    <title>SandeshYTDownloader | YouTube Downloader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -83,7 +83,7 @@
             border-radius: 48px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 48px 40px;
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
             transition: all 0.4s ease;
@@ -99,12 +99,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(46, 204, 113, 0.4);
         }
 
         .developer-section {
@@ -165,15 +159,6 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-        }
-
-        .developer-info p i {
-            transition: all 0.2s;
-        }
-
-        .developer-info p i:hover {
-            color: #2ecc71;
-            transform: translateY(-2px);
         }
 
         .logo-section {
@@ -242,7 +227,7 @@
             box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
         }
 
-        .download-btn {
+        .fetch-btn {
             width: 100%;
             padding: 18px;
             font-size: 16px;
@@ -257,16 +242,90 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            margin-bottom: 20px;
         }
 
-        .download-btn:hover {
+        .fetch-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 15px 35px rgba(46, 204, 113, 0.4);
         }
 
-        .download-btn:disabled {
+        .fetch-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .video-preview {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+        }
+
+        .video-preview.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 16px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.4);
         }
 
         .status {
@@ -279,17 +338,6 @@
             align-items: center;
             gap: 12px;
             animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .status.loading {
@@ -330,11 +378,6 @@
             transition: all 0.3s ease;
         }
 
-        .feature:hover {
-            background: rgba(46, 204, 113, 0.15);
-            transform: translateY(-3px);
-        }
-
         .feature i {
             font-size: 28px;
             margin-bottom: 8px;
@@ -353,10 +396,6 @@
             text-align: center;
             font-size: 12px;
             color: rgba(255, 255, 255, 0.35);
-        }
-
-        .footer i {
-            color: #e74c3c;
         }
 
         .spinner {
@@ -386,9 +425,6 @@
                 flex-direction: column;
                 text-align: center;
             }
-            .developer-info p {
-                justify-content: center;
-            }
         }
     </style>
 </head>
@@ -397,7 +433,6 @@
     <div class="leaf" style="top: 70%; left: 85%;">🌿</div>
     <div class="leaf" style="top: 40%; left: 15%;">🍂</div>
     <div class="leaf" style="top: 80%; left: 20%;">🌱</div>
-    <div class="leaf" style="top: 20%; left: 90%;">🍃</div>
 
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -418,8 +453,6 @@
                         <i class="fas fa-music"></i>
                         <i class="fas fa-headphones"></i>
                         <i class="fas fa-tree"></i>
-                        <i class="fab fa-github"></i>
-                        <i class="fab fa-twitter"></i>
                     </p>
                 </div>
             </div>
@@ -428,10 +461,10 @@
                 <div class="logo-icon">
                     <i class="fas fa-download"></i>
                 </div>
-                <h1>Sandesh YouTube Downloader</h1>
+                <h1>SandeshYTDownloader</h1>
                 <div class="tagline">
                     <i class="fab fa-youtube"></i>
-                    Download any video in seconds
+                    Paste link, preview, then download
                     <i class="fas fa-leaf"></i>
                 </div>
             </div>
@@ -441,12 +474,21 @@
                 <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
             </div>
 
-            <button class="download-btn" id="downloadBtn">
-                <i class="fas fa-download"></i>
-                <span>Download Video</span>
+            <button class="fetch-btn" id="fetchBtn">
+                <i class="fas fa-search"></i>
+                <span>Get Video Preview</span>
             </button>
 
             <div id="status" class="status"></div>
+
+            <div id="videoPreview" class="video-preview">
+                <div id="videoTitle" class="video-title"></div>
+                <div id="videoContainer" class="video-container"></div>
+                <button id="downloadBtn" class="download-btn">
+                    <i class="fas fa-download"></i>
+                    <span>Download Video</span>
+                </button>
+            </div>
 
             <div class="features">
                 <div class="feature">
@@ -470,11 +512,18 @@
     </div>
 
     <script>
-        const urlInput = document.getElementById('urlInput');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const statusDiv = document.getElementById('status');
+        let currentVideoUrl = '';
+        let currentTitle = '';
 
-        async function downloadVideo() {
+        const urlInput = document.getElementById('urlInput');
+        const fetchBtn = document.getElementById('fetchBtn');
+        const statusDiv = document.getElementById('status');
+        const videoPreview = document.getElementById('videoPreview');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoContainer = document.getElementById('videoContainer');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        async function fetchVideo() {
             const url = urlInput.value.trim();
             
             if (!url) {
@@ -487,13 +536,13 @@
                 return;
             }
             
-            downloadBtn.disabled = true;
-            const originalHTML = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = '<div class="spinner"></div><span>Processing...</span>';
-            showStatus('Fetching your video... 🌱', 'loading');
+            fetchBtn.disabled = true;
+            fetchBtn.innerHTML = '<div class="spinner"></div><span>Fetching Video...</span>';
+            showStatus('Getting video info... 🌱', 'loading');
+            videoPreview.classList.remove('show');
             
             try {
-                const response = await fetch('/api/download', {
+                const response = await fetch('/api/get-video', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -502,50 +551,76 @@
                 });
                 
                 if (!response.ok) {
-                    let errorMsg = 'Download failed';
-                    try {
-                        const errorData = await response.json();
-                        errorMsg = errorData.error || errorMsg;
-                    } catch(e) {
-                        errorMsg = `Server error: ${response.status}`;
-                    }
-                    throw new Error(errorMsg);
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to fetch video');
                 }
                 
-                const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                a.download = 'video.mp4';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(downloadUrl);
+                const data = await response.json();
                 
-                showStatus('✅ Download started! Check your downloads folder.', 'success');
-                urlInput.value = '';
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to get video');
+                }
+                
+                currentVideoUrl = data.video_url;
+                currentTitle = data.title;
+                
+                // Show video preview
+                videoTitle.textContent = currentTitle;
+                
+                // Create embed player
+                let videoId = '';
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else if (url.includes('watch?v=')) {
+                    videoId = url.split('watch?v=')[1].split('&')[0];
+                }
+                
+                videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                videoPreview.classList.add('show');
+                
+                showStatus('✅ Video loaded! Click download to save.', 'success');
+                
             } catch (error) {
                 showStatus('❌ ' + error.message, 'error');
             } finally {
-                downloadBtn.disabled = false;
-                downloadBtn.innerHTML = originalHTML;
-                setTimeout(() => {
-                    if (statusDiv.className === 'status success') {
-                        statusDiv.style.display = 'none';
-                    }
-                }, 4000);
+                fetchBtn.disabled = false;
+                fetchBtn.innerHTML = '<i class="fas fa-search"></i><span>Get Video Preview</span>';
             }
+        }
+
+        function downloadVideo() {
+            if (!currentVideoUrl) {
+                showStatus('No video loaded. Please fetch a video first.', 'error');
+                return;
+            }
+            
+            // Create a temporary link to download the video directly from YouTube
+            const a = document.createElement('a');
+            a.href = currentVideoUrl;
+            a.download = `${currentTitle}.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showStatus('📥 Download started! Video is downloading from YouTube directly.', 'success');
         }
 
         function showStatus(message, type) {
             statusDiv.innerHTML = `<i class="fas ${type === 'loading' ? 'fa-spinner fa-pulse' : (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle')}"></i> ${message}`;
             statusDiv.className = `status ${type}`;
             statusDiv.style.display = 'flex';
+            
+            setTimeout(() => {
+                if (statusDiv.className === 'status success') {
+                    statusDiv.style.display = 'none';
+                }
+            }, 5000);
         }
 
+        fetchBtn.addEventListener('click', fetchVideo);
         downloadBtn.addEventListener('click', downloadVideo);
         urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') downloadVideo();
+            if (e.key === 'Enter') fetchVideo();
         });
     </script>
 </body>
