@@ -10,17 +10,24 @@ CORS(app)
 
 BRAND_NAME = "SandeshYTDownloader"
 
-# Quality mapping with correct yt-dlp format selectors
-QUALITY_MAP = {
-    '144': 'bestvideo[height<=144][ext=mp4]+bestaudio[ext=m4a]/best[height<=144][ext=mp4]',
-    '240': 'bestvideo[height<=240][ext=mp4]+bestaudio[ext=m4a]/best[height<=240][ext=mp4]',
-    '360': 'bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[height<=360][ext=mp4]',
-    '480': 'bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]',
-    '720': 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]',
-    '1080': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]',
-    '1440': 'bestvideo[height<=1440][ext=mp4]+bestaudio[ext=m4a]/best[height<=1440][ext=mp4]',
-    '2160': 'bestvideo[height<=2160][ext=mp4]+bestaudio[ext=m4a]/best[height<=2160][ext=mp4]',
-}
+# Cookie file path - works on both local and Render
+if os.path.exists('/etc/secrets/cookies.txt'):
+    COOKIE_FILE = '/etc/secrets/cookies.txt'
+else:
+    COOKIE_FILE = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+
+def get_format_string(quality):
+    selectors = {
+        '144': 'bestvideo[height<=144]+bestaudio/best[height<=144]',
+        '240': 'bestvideo[height<=240]+bestaudio/best[height<=240]',
+        '360': 'bestvideo[height<=360]+bestaudio/best[height<=360]',
+        '480': 'bestvideo[height<=480]+bestaudio/best[height<=480]',
+        '720': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
+        '1080': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
+        '1440': 'bestvideo[height<=1440]+bestaudio/best[height<=1440]',
+        '2160': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]',
+    }
+    return selectors.get(quality, 'bestvideo[height<=720]+bestaudio/best[height<=720]')
 
 @app.route('/')
 def home():
@@ -41,8 +48,23 @@ def get_video():
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
-            'extract_flat': False,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'player_skip': ['webpage', 'configs'],
+                }
+            },
+            'http_headers': {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            }
         }
+        
+        # Add cookies if available
+        if os.path.exists(COOKIE_FILE):
+            ydl_opts['cookiefile'] = COOKIE_FILE
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -55,24 +77,11 @@ def get_video():
             elif 'watch?v=' in url:
                 video_id = url.split('watch?v=')[1].split('&')[0]
             
-            # Get available formats
-            formats = info.get('formats', [])
-            available_qualities = []
-            
-            for f in formats:
-                if f.get('vcodec') != 'none' and f.get('height'):
-                    height = f.get('height')
-                    if height and height not in available_qualities:
-                        available_qualities.append(height)
-            
-            available_qualities = sorted([r for r in available_qualities if r <= 2160])
-            
             return jsonify({
                 'success': True,
                 'title': title,
                 'video_id': video_id,
-                'thumbnail': info.get('thumbnail', ''),
-                'available_qualities': available_qualities
+                'thumbnail': info.get('thumbnail', '')
             })
         
     except Exception as e:
@@ -96,46 +105,41 @@ def download_video():
         output_path = os.path.join("downloads", filename)
         os.makedirs("downloads", exist_ok=True)
         
+        # Base options
+        ydl_opts = {
+            'outtmpl': output_path,
+            'quiet': True,
+            'no_warnings': True,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'player_skip': ['webpage', 'configs'],
+                }
+            },
+            'http_headers': {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+            }
+        }
+        
+        # Add cookies if available
+        if os.path.exists(COOKIE_FILE):
+            ydl_opts['cookiefile'] = COOKIE_FILE
+        
         if format_type == 'audio':
             # For MP3 download
-            ydl_opts = {
-                'outtmpl': output_path,
-                'format': 'bestaudio/best',
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-                'quiet': True,
-                'no_warnings': True,
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android', 'web'],
-                    }
-                }
-            }
+            ydl_opts['format'] = 'bestaudio/best'
+            ydl_opts['postprocessors'] = [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }]
         else:
             # For video download with selected quality
-            format_spec = QUALITY_MAP.get(quality, QUALITY_MAP['720'])
-            
-            ydl_opts = {
-                'outtmpl': output_path,
-                'format': format_spec,
-                'merge_output_format': 'mp4',
-                'quiet': True,
-                'no_warnings': True,
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android', 'web'],
-                    }
-                },
-                'http_headers': {
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
-                }
-            }
+            format_string = get_format_string(quality)
+            ydl_opts['format'] = format_string
+            ydl_opts['merge_output_format'] = 'mp4'
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -143,17 +147,15 @@ def download_video():
         # Find the actual output file (yt-dlp might add extensions)
         final_output = output_path
         if format_type == 'audio':
-            mp3_path = output_path.replace('.mp3', '') + '.mp3'
-            if os.path.exists(mp3_path):
-                final_output = mp3_path
-            elif os.path.exists(output_path + '.mp3'):
+            if os.path.exists(output_path + '.mp3'):
                 final_output = output_path + '.mp3'
+            elif os.path.exists(output_path.replace('.mp3', '') + '.mp3'):
+                final_output = output_path.replace('.mp3', '') + '.mp3'
         
         # Clean filename for download
         clean_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
         extension = 'mp3' if format_type == 'audio' else 'mp4'
         
-        # Add quality to filename for video
         if format_type == 'video':
             branded_filename = f"{BRAND_NAME} - {clean_title} - {quality}p.{extension}"
         else:
@@ -175,13 +177,6 @@ def download_video():
                 os.remove(output_path)
             except:
                 pass
-        # Clean up ffmpeg temp files
-        for f in os.listdir('downloads'):
-            if f.endswith('.part') or f.endswith('.temp'):
-                try:
-                    os.remove(os.path.join('downloads', f))
-                except:
-                    pass
 
 if __name__ == '__main__':
     os.makedirs("downloads", exist_ok=True)
